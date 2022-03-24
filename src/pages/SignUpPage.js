@@ -30,41 +30,63 @@ class SignUpPage extends React.Component {
         const { password, password_repeat } = this.state;
         let disabled = password !== password_repeat || (password === "" || password_repeat === "");
         return (
-            <div>
-                <form>
-                    <h1>Sign Up</h1>
-                    <label htmlFor="username">
-                        Username
-                    </label>
-                    <input
-                        name="username"
-                        id="username"
-                        onChange={this.onInputChange}
-                    />
-                    <label htmlFor="email">
-                        Email
-                    </label>
-                    <input
-                        name="email"
-                        id="email"
-                        onChange={this.onInputChange}
-                    />
-                    <label htmlFor="password">Password</label>
-                    <input
-                        name="password"
-                        onChange={this.onInputChange}
-                        id="password"
-                        type="password" />
-                    <label htmlFor="repeat_password">Repeat Password</label>
-                    <input
-                        name="password_repeat"
-                        onChange={this.onInputChange}
-                        id="repeat_password"
-                        type="password"
-                    />
-                    <button disabled={disabled} onClick={this.submit}>
-                        Sign Up
-                    </button>
+            <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+                <form className="card mt-5">
+                    <div className="card-header">
+                        <h1 className="text-center">Sign Up</h1>
+                    </div>
+                    <div className="card-body">
+                        <div className="mb-3">
+                            <label className="form-label" htmlFor="username">
+                                Username
+                            </label>
+
+                            <input
+                                className="form-control"
+                                name="username"
+                                id="username"
+                                onChange={this.onInputChange}
+                            />
+                        </div>
+
+                        <div className="mb-3">
+                            <label className="form-label" htmlFor="email">
+                                Email
+                            </label>
+                            <input
+                                className="form-control"
+                                name="email"
+                                id="email"
+                                onChange={this.onInputChange}
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label" htmlFor="password">Password</label>
+                            <input
+                                className="form-control"
+                                name="password"
+                                onChange={this.onInputChange}
+                                id="password"
+                                type="password" />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label" htmlFor="repeat_password">Repeat Password</label>
+                            <input
+                                className="form-control"
+                                name="password_repeat"
+                                onChange={this.onInputChange}
+                                id="repeat_password"
+                                type="password"
+                            />
+                        </div>
+                        <div className="text-center">
+                            <button className="btn btn-primary" disabled={disabled} onClick={this.submit}>
+                                Sign Up
+                            </button>
+                        </div>
+                    </div>
+
+
                 </form>
             </div>
 
