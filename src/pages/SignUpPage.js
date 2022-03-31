@@ -8,7 +8,8 @@ class SignUpPage extends React.Component {
         username: "",
         email: "",
         password: "",
-        password_repeat: ""
+        password_repeat: "",
+        loading: false
     }
 
 
@@ -22,18 +23,21 @@ class SignUpPage extends React.Component {
     submit = (e) => {
         e.preventDefault();
         const { username, email, password } = this.state;
+        this.setState({ loading: true });
         fetch("/api/1.0/users", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ username, email, password})
+        }).then(result => {
+
         });
     }
 
     render() {
 
-        const { password, password_repeat } = this.state;
+        const { password, password_repeat, loading } = this.state;
         let disabled = password !== password_repeat || (password === "" || password_repeat === "");
         return (
             <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
@@ -86,7 +90,8 @@ class SignUpPage extends React.Component {
                             />
                         </div>
                         <div className="text-center">
-                            <button className="btn btn-primary" disabled={disabled} onClick={this.submit}>
+                            <button className="btn btn-primary" disabled={disabled || loading} onClick={this.submit}>
+                                { loading && <span className="spinner-border spinner-border-sm" role="status"></span> }
                                 Sign Up
                             </button>
                         </div>

@@ -54,15 +54,26 @@ describe("Sign Up Page", () => {
         });
     });
     describe("interactions", () => {
-        it("enables button when password and password repeat have the same value", () => {
+
+        let button;
+
+        const setUpPage = () => {
             render(<SignUpPage />);
+            const usernameInput = screen.getByLabelText("Username");
+            const emailInput = screen.getByLabelText("Email");
             const passwordInput = screen.getByLabelText("Password");
             const passwordRepeat = screen.getByLabelText("Repeat Password");
 
+            userEvent.type(usernameInput, "lee123");
+            userEvent.type(emailInput, "poopoo@gmail.com");
             userEvent.type(passwordInput, "poopoo");
             userEvent.type(passwordRepeat, "poopoo");
 
-            const button = screen.queryByRole("button", { name: "Sign Up" });
+            button = screen.queryByRole("button", { name: "Sign Up" });
+        }
+
+        it("enables button when password and password repeat have the same value", () => {
+            setUpPage();
             expect(button).toBeEnabled();
         })
         it("sends username, email, and password after pressing the button", async () => {
@@ -75,22 +86,8 @@ describe("Sign Up Page", () => {
             );
 
             server.listen();
-
-            render(<SignUpPage />);
-            const usernameInput = screen.getByLabelText("Username");
-            const emailInput = screen.getByLabelText("Email");
-            const passwordInput = screen.getByLabelText("Password");
-            const passwordRepeat = screen.getByLabelText("Repeat Password");
-
-            userEvent.type(usernameInput, "lee123");
-            userEvent.type(emailInput, "poopoo@gmail.com");
-            userEvent.type(passwordInput, "poopoo");
-            userEvent.type(passwordRepeat, "poopoo");
-
-            const button = screen.queryByRole("button", { name: "Sign Up" });
-
+            setUpPage();
             userEvent.click(button);
-
             await new Promise((resolve) => setTimeout(resolve, 500));
 
             expect(reqBody).toEqual({
@@ -98,8 +95,41 @@ describe("Sign Up Page", () => {
                 email: "poopoo@gmail.com",
                 password: "poopoo"
             })
-
         })
+
+        it("disables button when there is an ongoing api call", async () => {
+            let counter = 0;
+            const server = setupServer(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    counter++;
+                    return res(ctx.status(200));
+                })
+            );
+
+            server.listen();
+            setUpPage();
+            userEvent.click(button);
+            userEvent.click(button);
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            expect(counter).toBe(1);
+        });
+
+        it("displays spinner after clicking submit", async () => {
+            let counter = 0;
+            const server = setupServer(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    counter++;
+                    return res(ctx.status(200));
+                })
+            );
+
+            server.listen();
+            setUpPage();
+            expect(screen.queryByRole("status")).not.toBeInTheDocument();
+            userEvent.click(button);
+            const spinner = screen.getByRole("status");
+            expect(spinner).toBeInTheDocument();
+        });
     })
 })
 
