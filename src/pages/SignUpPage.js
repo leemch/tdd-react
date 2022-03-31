@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+//import axios from "axios";
 
 class SignUpPage extends React.Component {
 
@@ -22,7 +22,13 @@ class SignUpPage extends React.Component {
     submit = (e) => {
         e.preventDefault();
         const { username, email, password } = this.state;
-        axios.post("/api/1.0/users", { username, email, password });
+        fetch("/api/1.0/users", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, email, password})
+        });
     }
 
     render() {

@@ -1,7 +1,9 @@
 const { render, screen } = require("@testing-library/react")
 import SignUpPage from "./SignUpPage";
 import userEvent from "@testing-library/user-event";
-import axios from "axios";
+//import axios from "axios";
+import { setupServer } from "msw/node";
+import { rest } from "msw";
 
 describe("Sign Up Page", () => {
     describe("Layout", () => {
@@ -56,14 +58,24 @@ describe("Sign Up Page", () => {
             render(<SignUpPage />);
             const passwordInput = screen.getByLabelText("Password");
             const passwordRepeat = screen.getByLabelText("Repeat Password");
-            
+
             userEvent.type(passwordInput, "poopoo");
             userEvent.type(passwordRepeat, "poopoo");
 
             const button = screen.queryByRole("button", { name: "Sign Up" });
             expect(button).toBeEnabled();
         })
-        it("sends username, email, and password after pressing the button", () => {
+        it("sends username, email, and password after pressing the button", async () => {
+            let reqBody;
+            const server = setupServer(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    reqBody = req.body;
+                    return res(ctx.status(200));
+                })
+            );
+
+            server.listen();
+
             render(<SignUpPage />);
             const usernameInput = screen.getByLabelText("Username");
             const emailInput = screen.getByLabelText("Email");
@@ -74,17 +86,14 @@ describe("Sign Up Page", () => {
             userEvent.type(emailInput, "poopoo@gmail.com");
             userEvent.type(passwordInput, "poopoo");
             userEvent.type(passwordRepeat, "poopoo");
-            
-            const button = screen.queryByRole("button", { name: "Sign Up" });
 
-            const mockFn = jest.fn();
-            axios.post = mockFn;
+            const button = screen.queryByRole("button", { name: "Sign Up" });
 
             userEvent.click(button);
 
-            const firstCallOfMockFunction = mockFn.mock.calls[0];
-            const body = firstCallOfMockFunction[1];
-            expect(body).toEqual({
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            expect(reqBody).toEqual({
                 username: "lee123",
                 email: "poopoo@gmail.com",
                 password: "poopoo"
