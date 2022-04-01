@@ -9,7 +9,8 @@ class SignUpPage extends React.Component {
         email: "",
         password: "",
         password_repeat: "",
-        loading: false
+        loading: false,
+        signUpSuccess: false
     }
 
 
@@ -31,17 +32,19 @@ class SignUpPage extends React.Component {
             },
             body: JSON.stringify({ username, email, password})
         }).then(result => {
-
+            this.setState({
+                signUpSuccess: true
+            })
         });
     }
 
     render() {
 
-        const { password, password_repeat, loading } = this.state;
+        const { password, password_repeat, loading, signUpSuccess } = this.state;
         let disabled = password !== password_repeat || (password === "" || password_repeat === "");
         return (
             <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
-                <form className="card mt-5">
+                { !signUpSuccess && <form className="card mt-5" data-testid="form-sign-up">
                     <div className="card-header">
                         <h1 className="text-center">Sign Up</h1>
                     </div>
@@ -98,7 +101,10 @@ class SignUpPage extends React.Component {
                     </div>
 
 
-                </form>
+                </form>}
+                { signUpSuccess && <div className="alert alert-success mt-3" role="alert">
+                Please check your email to activate your account.
+                 </div> }
             </div>
 
         )

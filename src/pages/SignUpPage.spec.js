@@ -1,4 +1,4 @@
-const { render, screen } = require("@testing-library/react")
+const { render, screen, waitFor, waitForElementToBeRemoved } = require("@testing-library/react")
 import SignUpPage from "./SignUpPage";
 import userEvent from "@testing-library/user-event";
 //import axios from "axios";
@@ -66,8 +66,8 @@ describe("Sign Up Page", () => {
 
             userEvent.type(usernameInput, "lee123");
             userEvent.type(emailInput, "poopoo@gmail.com");
-            userEvent.type(passwordInput, "poopoo");
-            userEvent.type(passwordRepeat, "poopoo");
+            userEvent.type(passwordInput, "Poopoo1");
+            userEvent.type(passwordRepeat, "Poopoo1");
 
             button = screen.queryByRole("button", { name: "Sign Up" });
         }
@@ -88,12 +88,12 @@ describe("Sign Up Page", () => {
             server.listen();
             setUpPage();
             userEvent.click(button);
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await screen.findByText("Please check your email to activate your account.");
 
             expect(reqBody).toEqual({
                 username: "lee123",
                 email: "poopoo@gmail.com",
-                password: "poopoo"
+                password: "Poopoo1"
             })
         })
 
@@ -110,7 +110,7 @@ describe("Sign Up Page", () => {
             setUpPage();
             userEvent.click(button);
             userEvent.click(button);
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await screen.findByText("Please check your email to activate your account.");
             expect(counter).toBe(1);
         });
 
@@ -129,6 +129,41 @@ describe("Sign Up Page", () => {
             userEvent.click(button);
             const spinner = screen.getByRole("status");
             expect(spinner).toBeInTheDocument();
+            await screen.findByText("Please check your email to activate your account.");
+        });
+
+        it("displays account activation notification after successful sign up request", async () => {
+            const server = setupServer(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    return res(ctx.status(200));
+                })
+            );
+
+            server.listen();
+            setUpPage();
+            const message = "Please check your email to activate your account.";
+            expect(screen.queryByText(message)).not.toBeInTheDocument();
+            userEvent.click(button);
+            const notification = await screen.findByText(message);
+            expect(notification).toBeInTheDocument();
+        });
+
+        it("hides sign up form after successful sign up request", async () => {
+            const server = setupServer(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    return res(ctx.status(200));
+                })
+            );
+
+            server.listen();
+            setUpPage();
+            const form = screen.getByTestId("form-sign-up");
+            userEvent.click(button);
+            await waitFor(() => {
+                expect(form).not.toBeInTheDocument();
+            })
+
+            //await waitForElementToBeRemoved(form);
         });
     })
 })
