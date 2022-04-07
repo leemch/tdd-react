@@ -21,21 +21,25 @@ class SignUpPage extends React.Component {
         });
     }
 
-    submit = (e) => {
+    submit = async (e) => {
         e.preventDefault();
         const { username, email, password } = this.state;
         this.setState({ loading: true });
-        fetch("/api/1.0/users", {
+
+        try {
+        await fetch("/api/1.0/users", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ username, email, password})
-        }).then(result => {
-            this.setState({
-                signUpSuccess: true
-            })
         });
+        this.setState({ signUpSuccess: true })
+        } catch(error) {
+
+        }
+        
+        
     }
 
     render() {

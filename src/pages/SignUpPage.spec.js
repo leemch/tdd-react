@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 
+
 describe("Sign Up Page", () => {
     describe("Layout", () => {
         it("has header", () => {
@@ -55,6 +56,30 @@ describe("Sign Up Page", () => {
     });
     describe("interactions", () => {
 
+        let reqBody;
+        let counter = 0;
+        const server = setupServer(
+            rest.post("/api/1.0/users", (req, res, ctx) => {
+                reqBody = req.body;
+                counter++;
+                return res(ctx.status(200));
+            })
+        );
+
+        beforeAll(() => {
+            server.listen();
+        })
+
+        beforeEach(() => {
+            counter = 0;
+        })
+
+        afterAll(() => {
+            server.close();
+        })
+
+        
+
         let button;
 
         const setUpPage = () => {
@@ -77,15 +102,8 @@ describe("Sign Up Page", () => {
             expect(button).toBeEnabled();
         })
         it("sends username, email, and password after pressing the button", async () => {
-            let reqBody;
-            const server = setupServer(
-                rest.post("/api/1.0/users", (req, res, ctx) => {
-                    reqBody = req.body;
-                    return res(ctx.status(200));
-                })
-            );
 
-            server.listen();
+
             setUpPage();
             userEvent.click(button);
             await screen.findByText("Please check your email to activate your account.");
@@ -98,15 +116,6 @@ describe("Sign Up Page", () => {
         })
 
         it("disables button when there is an ongoing api call", async () => {
-            let counter = 0;
-            const server = setupServer(
-                rest.post("/api/1.0/users", (req, res, ctx) => {
-                    counter++;
-                    return res(ctx.status(200));
-                })
-            );
-
-            server.listen();
             setUpPage();
             userEvent.click(button);
             userEvent.click(button);
@@ -115,15 +124,6 @@ describe("Sign Up Page", () => {
         });
 
         it("displays spinner after clicking submit", async () => {
-            let counter = 0;
-            const server = setupServer(
-                rest.post("/api/1.0/users", (req, res, ctx) => {
-                    counter++;
-                    return res(ctx.status(200));
-                })
-            );
-
-            server.listen();
             setUpPage();
             expect(screen.queryByRole("status")).not.toBeInTheDocument();
             userEvent.click(button);
