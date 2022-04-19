@@ -60,6 +60,7 @@ describe("Sign Up Page", () => {
         let counter = 0;
         const server = setupServer(
             rest.post("/api/1.0/users", (req, res, ctx) => {
+                //console.log("success msg")
                 reqBody = req.body;
                 counter++;
                 return res(ctx.status(200));
@@ -133,13 +134,6 @@ describe("Sign Up Page", () => {
         });
 
         it("displays account activation notification after successful sign up request", async () => {
-            const server = setupServer(
-                rest.post("/api/1.0/users", (req, res, ctx) => {
-                    return res(ctx.status(200));
-                })
-            );
-
-            server.listen();
             setUpPage();
             const message = "Please check your email to activate your account.";
             expect(screen.queryByText(message)).not.toBeInTheDocument();
@@ -149,13 +143,6 @@ describe("Sign Up Page", () => {
         });
 
         it("hides sign up form after successful sign up request", async () => {
-            const server = setupServer(
-                rest.post("/api/1.0/users", (req, res, ctx) => {
-                    return res(ctx.status(200));
-                })
-            );
-
-            server.listen();
             setUpPage();
             const form = screen.getByTestId("form-sign-up");
             userEvent.click(button);
@@ -164,6 +151,21 @@ describe("Sign Up Page", () => {
             })
 
             //await waitForElementToBeRemoved(form);
+        });
+
+        it("displays validation message for username", async () => {
+            server.use(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    //console.log("error msg")
+                    return res(ctx.status(400), ctx.json({
+                        validationErrors: {username: "Username cannot be null"}
+                    }));
+                })
+            );
+            setUpPage();
+            userEvent.click(button);
+            const validationError = await screen.findByText("Username cannot be null");
+            expect(validationError).toBeInTheDocument();
         });
     })
 })

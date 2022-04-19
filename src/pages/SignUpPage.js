@@ -1,5 +1,5 @@
 import React from "react";
-//import axios from "axios";
+import axios from "axios";
 
 class SignUpPage extends React.Component {
 
@@ -10,7 +10,8 @@ class SignUpPage extends React.Component {
         password: "",
         password_repeat: "",
         loading: false,
-        signUpSuccess: false
+        signUpSuccess: false,
+        errors: {}
     }
 
 
@@ -27,28 +28,29 @@ class SignUpPage extends React.Component {
         this.setState({ loading: true });
 
         try {
-        await fetch("/api/1.0/users", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, email, password})
-        });
-        this.setState({ signUpSuccess: true })
-        } catch(error) {
+            await axios.post("/api/1.0/users", { username, email, password });
+            this.setState({ signUpSuccess: true });
+        } catch (error) {
+            this.setState({ loading: false });
+            if (error.response.status == 400) {
+                console.log(error.response);
+                this.setState({
+                    errors: error.response.data.validationErrors
+                });
+            }
 
         }
-        
-        
+
+
     }
 
     render() {
 
-        const { password, password_repeat, loading, signUpSuccess } = this.state;
+        const { password, password_repeat, loading, signUpSuccess, errors } = this.state;
         let disabled = password !== password_repeat || (password === "" || password_repeat === "");
         return (
             <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
-                { !signUpSuccess && <form className="card mt-5" data-testid="form-sign-up">
+                {!signUpSuccess && <form className="card mt-5" data-testid="form-sign-up">
                     <div className="card-header">
                         <h1 className="text-center">Sign Up</h1>
                     </div>
@@ -64,6 +66,7 @@ class SignUpPage extends React.Component {
                                 id="username"
                                 onChange={this.onInputChange}
                             />
+                            <span>{errors.username}</span>
                         </div>
 
                         <div className="mb-3">
@@ -98,7 +101,7 @@ class SignUpPage extends React.Component {
                         </div>
                         <div className="text-center">
                             <button className="btn btn-primary" disabled={disabled || loading} onClick={this.submit}>
-                                { loading && <span className="spinner-border spinner-border-sm" role="status"></span> }
+                                {loading && <span className="spinner-border spinner-border-sm" role="status"></span>}
                                 Sign Up
                             </button>
                         </div>
@@ -106,9 +109,9 @@ class SignUpPage extends React.Component {
 
 
                 </form>}
-                { signUpSuccess && <div className="alert alert-success mt-3" role="alert">
-                Please check your email to activate your account.
-                 </div> }
+                {signUpSuccess && <div className="alert alert-success mt-3" role="alert">
+                    Please check your email to activate your account.
+                </div>}
             </div>
 
         )
