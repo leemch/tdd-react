@@ -31,14 +31,13 @@ class SignUpPage extends React.Component {
             await axios.post("/api/1.0/users", { username, email, password });
             this.setState({ signUpSuccess: true });
         } catch (error) {
-            this.setState({ loading: false });
             if (error.response.status == 400) {
                 console.log(error.response);
                 this.setState({
                     errors: error.response.data.validationErrors
                 });
             }
-
+            this.setState({ loading: false });
         }
 
 

@@ -73,6 +73,7 @@ describe("Sign Up Page", () => {
 
         beforeEach(() => {
             counter = 0;
+            server.resetHandlers();
         })
 
         afterAll(() => {
@@ -166,6 +167,23 @@ describe("Sign Up Page", () => {
             userEvent.click(button);
             const validationError = await screen.findByText("Username cannot be null");
             expect(validationError).toBeInTheDocument();
+        });
+
+        it("hides spinner and enables button after response received", async () => {
+            server.use(
+                rest.post("/api/1.0/users", (req, res, ctx) => {
+                    //console.log("error msg")
+                    return res(ctx.status(400), ctx.json({
+                        validationErrors: {username: "Username cannot be null"}
+                    }));
+                })
+            );
+            setUpPage();
+            userEvent.click(button);
+            const validationError = await screen.findByText("Username cannot be null");
+            const spinner = screen.queryByRole('status');
+            expect(spinner).not.toBeInTheDocument();
+            expect(button).toBeEnabled();
         });
     })
 })
