@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import Input from "../components/Input";
 
 class SignUpPage extends React.Component {
 
@@ -32,7 +33,6 @@ class SignUpPage extends React.Component {
             this.setState({ signUpSuccess: true });
         } catch (error) {
             if (error.response.status == 400) {
-                console.log(error.response);
                 this.setState({
                     errors: error.response.data.validationErrors
                 });
@@ -54,40 +54,11 @@ class SignUpPage extends React.Component {
                         <h1 className="text-center">Sign Up</h1>
                     </div>
                     <div className="card-body">
-                        <div className="mb-3">
-                            <label className="form-label" htmlFor="username">
-                                Username
-                            </label>
+                        <Input id="username" label="Username" onChange={this.onInputChange} help={errors.username} />
+                        <Input id="email" label="Email" onChange={this.onInputChange} help={errors.email} />
+                        <Input id="password" label="Password" onChange={this.onInputChange} help={errors.password} type="password" />
 
-                            <input
-                                className="form-control"
-                                name="username"
-                                id="username"
-                                onChange={this.onInputChange}
-                            />
-                            <span>{errors.username}</span>
-                        </div>
 
-                        <div className="mb-3">
-                            <label className="form-label" htmlFor="email">
-                                Email
-                            </label>
-                            <input
-                                className="form-control"
-                                name="email"
-                                id="email"
-                                onChange={this.onInputChange}
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" htmlFor="password">Password</label>
-                            <input
-                                className="form-control"
-                                name="password"
-                                onChange={this.onInputChange}
-                                id="password"
-                                type="password" />
-                        </div>
                         <div className="mb-3">
                             <label className="form-label" htmlFor="repeat_password">Repeat Password</label>
                             <input
