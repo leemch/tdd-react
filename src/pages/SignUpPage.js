@@ -19,7 +19,8 @@ class SignUpPage extends React.Component {
     onInputChange = event => {
         const input = event.target;
         this.setState({
-            [input.name]: input.value
+            [input.name]: input.value,
+            errors: {...this.state.errors, [event.target.name]: ""}
         });
     }
 
@@ -47,6 +48,8 @@ class SignUpPage extends React.Component {
 
         const { password, password_repeat, loading, signUpSuccess, errors } = this.state;
         let disabled = password !== password_repeat || (password === "" || password_repeat === "");
+
+        let passwordMismatch = password !== password_repeat ? "Password mismatch" : "";
         return (
             <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
                 {!signUpSuccess && <form className="card mt-5" data-testid="form-sign-up">
@@ -57,18 +60,7 @@ class SignUpPage extends React.Component {
                         <Input id="username" label="Username" onChange={this.onInputChange} help={errors.username} />
                         <Input id="email" label="Email" onChange={this.onInputChange} help={errors.email} />
                         <Input id="password" label="Password" onChange={this.onInputChange} help={errors.password} type="password" />
-
-
-                        <div className="mb-3">
-                            <label className="form-label" htmlFor="repeat_password">Repeat Password</label>
-                            <input
-                                className="form-control"
-                                name="password_repeat"
-                                onChange={this.onInputChange}
-                                id="repeat_password"
-                                type="password"
-                            />
-                        </div>
+                        <Input id="password_repeat" label="Repeat Password" onChange={this.onInputChange} help={passwordMismatch} type="password" />
                         <div className="text-center">
                             <button className="btn btn-primary" disabled={disabled || loading} onClick={this.submit}>
                                 {loading && <span className="spinner-border spinner-border-sm" role="status"></span>}

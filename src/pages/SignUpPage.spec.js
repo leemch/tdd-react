@@ -82,14 +82,14 @@ describe("Sign Up Page", () => {
 
 
 
-        let button;
+        let button, passwordInput, passwordRepeat, usernameInput, emailInput;
 
         const setUpPage = () => {
             render(<SignUpPage />);
-            const usernameInput = screen.getByLabelText("Username");
-            const emailInput = screen.getByLabelText("Email");
-            const passwordInput = screen.getByLabelText("Password");
-            const passwordRepeat = screen.getByLabelText("Repeat Password");
+            usernameInput = screen.getByLabelText("Username");
+            emailInput = screen.getByLabelText("Email");
+            passwordInput = screen.getByLabelText("Password");
+            passwordRepeat = screen.getByLabelText("Repeat Password");
 
             userEvent.type(usernameInput, "lee123");
             userEvent.type(emailInput, "poopoo@gmail.com");
@@ -191,6 +191,29 @@ describe("Sign Up Page", () => {
             const spinner = screen.queryByRole('status');
             expect(spinner).not.toBeInTheDocument();
             expect(button).toBeEnabled();
+        });
+
+        it("displays mismatch message for password repeat input", () => {
+            setUpPage();
+            userEvent.type(passwordInput, "Peepee1");
+            userEvent.type(passwordRepeat, "Poopoo1");
+
+            const validationError = screen.queryByText("Password mismatch");
+            expect(validationError).toBeInTheDocument();
+        });
+
+        it.each`
+        field | message | label
+        ${'username'} | ${"Username cannot be null"} | ${"Username"}
+        ${'email'} | ${"Email cannot be null"} | ${"Email"}
+        ${'password'} | ${"Password cannot be null"} | ${"Password"}
+        `("clears validation error after $field field is updated", async ({field, message, label}) => {
+            server.use(generateValidationError(field, message));
+            setUpPage();
+            userEvent.click(button);
+            const validationError = await screen.findByText(message);
+            userEvent.type(screen.getByLabelText(label), "updated");
+            expect(validationError).not.toBeInTheDocument();
         });
     })
 })

@@ -18,7 +18,7 @@ const Input = ({label, id, onChange, help, type = "text"}) => {
                 onChange={onChange}
                 type={type}
             />
-            <span className="invalid-feedback">{help}</span>
+            {help && <span className="invalid-feedback">{help}</span>}
         </div>
     )
 }
