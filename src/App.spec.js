@@ -68,4 +68,11 @@ describe("routing", () => {
         const page = screen.getByTestId(visiblePage);
         expect(page).toBeInTheDocument();
     });
+
+    it("displays home page when clicking brand logo", () => {
+        setup("/login");
+        const logo = screen.queryByAltText("Hoaxify");
+        userEvent.click(logo);
+        expect(screen.getByTestId("home-page")).toBeInTheDocument();
+    })
 })
